@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="data-atualizacao" content="26/05/2026, 18:12">
+    <title>Crédito Privado — Ativos Aprovados</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:    #0d0f17;
+            --bg2:   #141720;
+            --bg3:   #1a1e2b;
+            --border:#2a2e3f;
+            --text:  #e1e3ef;
+            --text2: #9a9eb8;
+            --text3: #5c6080;
+            --gold:  #f5c842;
+            --amber: #e0ac2c;
+            --green: #2ecc71;
+            --red:   #e74c3c;
+            --blue:  #4a9eff;
+        }
+        body.light {
+            --bg:    #f4f5f7;
+            --bg2:   #ffffff;
+            --bg3:   #eef0f4;
+            --border:#d4d8e2;
+            --text:  #1a1d2e;
+            --text2: #4a4f6a;
+            --text3: #8a90a8;
+            --gold:  #b8860b;
+            --amber: #c47d00;
+            --green: #1a8a4a;
+            --red:   #c0392b;
+            --blue:  #1565c0;
+        }
+
+        /* ── Header / topbar ── */
+        .header {
+            background: var(--bg2); border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem; height: 58px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; font-weight: 600; color: var(--text2);
+        }
+        .dot {
+            padding: 0 12px; min-width: 36px; height: 30px;
+            background: var(--gold); border-radius: 40px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800; color: #000; letter-spacing: .5px;
+        }
+        .header-right { display: flex; align-items: center; gap: .8rem; }
+        .hdate { font-size: 11px; color: var(--text3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .theme-btn {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 30px; width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: border-color .2s;
+        }
+        .theme-btn:hover { border-color: var(--gold); }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: "DM Sans", sans-serif; color: var(--text); padding: 0 20px 28px; min-height: 100vh; transition: background .2s, color .2s; }
+        .container { max-width: 1100px; margin: 0 auto; padding-top: 28px; }
+
+        /* ── Header ── */
+        .page-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px; }
+        .page-title { font-size:1.5rem; font-weight:700; color:var(--gold); letter-spacing:-.02em; }
+        .page-subtitle { font-size:.8rem; color:var(--text3); padding-left:14px; border-left:3px solid var(--amber); margin-bottom:20px; }
+        #dataAtualizacao { margin-left:8px; font-size:.75rem; color:var(--text3); }
+
+        /* ── Cards ── */
+        .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:22px 24px; margin-bottom:20px; }
+        .card-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+        .card-title span { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); }
+
+        /* ── Stats bar ── */
+        .stats-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+        .stat-pill { display:inline-flex; align-items:center; gap:0; background:var(--bg3); border:1px solid var(--border); border-radius:20px; overflow:hidden; font-size:11px; font-weight:600; color:var(--text2); padding-right:14px; cursor:pointer; transition:all .18s; user-select:none; }
+        .stat-pill:hover { border-color:var(--amber); color:var(--text); }
+        .stat-pill.active-all  { background:rgba(245,200,66,.12); border-color:var(--gold); color:var(--gold); }
+        .stat-pill.active-a    { background:rgba(46,204,113,.12); border-color:var(--green); color:var(--green); }
+        .stat-pill.active-bcd  { background:rgba(231,76,60,.12);  border-color:var(--red);   color:var(--red); }
+        .stat-pill .dot { width:4px; align-self:stretch; flex:0 0 4px; display:block; margin-right:10px; }
+        .dot-gold  { background:var(--gold); }
+        .dot-green { background:var(--green); }
+        .dot-red   { background:var(--red); }
+
+        /* ── Search ── */
+        .search-wrap { position:relative; }
+        .search-wrap label { display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:8px; }
+        .search-inner { position:relative; }
+        .search-inner input {
+            width:100%; background:var(--bg3); border:1px solid var(--border);
+            padding:11px 40px 11px 16px; border-radius:40px;
+            color:var(--text); font-size:.9rem; font-family:inherit;
+            transition:border-color .2s;
+        }
+        .search-inner input:focus { outline:none; border-color:var(--amber); }
+        .search-inner input::placeholder { color:var(--text3); }
+        .clear-btn {
+            position:absolute; right:12px; top:50%; transform:translateY(-50%);
+            background:none; border:none; color:var(--text3); cursor:pointer;
+            font-size:1rem; padding:4px; display:none; align-items:center;
+            justify-content:center; border-radius:50%; transition:.2s;
+        }
+        .clear-btn:hover { color:var(--gold); background:var(--border); }
+        .autocomplete-items {
+            position:absolute; top:calc(100% + 6px); left:0; right:0;
+            background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+            max-height:280px; overflow-y:auto; z-index:100;
+            box-shadow:0 8px 24px rgba(0,0,0,.5);
+        }
+        .autocomplete-item {
+            padding:10px 16px; cursor:pointer;
+            border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center;
+            gap:12px; transition:background .1s;
+        }
+        .autocomplete-item:last-child { border-bottom:none; }
+        .autocomplete-item span:first-child { flex:1; font-size:.85rem; color:var(--text); line-height:1.4; }
+        .autocomplete-item:hover, .autocomplete-item.active { background:var(--bg3); }
+        .autocomplete-item.active { border-left:3px solid var(--amber); }
+
+        /* ── Rating badges ── */
+        .rating-badge { font-size:.68rem; padding:3px 10px; border-radius:20px; font-weight:700; white-space:nowrap; }
+        .rating-green { background:rgba(46,204,113,.12); color:var(--green); border:1px solid rgba(46,204,113,.3); }
+        .rating-red   { background:rgba(231,76,60,.12);  color:var(--red);   border:1px solid rgba(231,76,60,.3); }
+        .rating-neutral { background:var(--bg3); color:var(--text3); border:1px solid var(--border); }
+
+        /* ── Result card ── */
+        .inst-card { }
+        .inst-header {
+            display:flex; align-items:center; flex-wrap:wrap; gap:12px;
+            padding-bottom:16px; margin-bottom:18px;
+            border-bottom:1px solid var(--border);
+        }
+        .material-symbols-outlined { font-family: "Material Symbols Outlined"; font-size: 22px; font-style: normal; font-weight: 400; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }
+        .inst-icon {
+            width:44px; height:44px; border-radius:12px;
+            background:rgba(245,200,66,.08); border:1px solid rgba(245,200,66,.2);
+            display:flex; align-items:center; justify-content:center;
+            font-size:20px; flex-shrink:0;
+        }
+        .inst-name { font-size:1.15rem; font-weight:700; color:var(--gold); }
+        .score-pill {
+            margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+            background:rgba(245,200,66,.08); border:1px solid rgba(245,200,66,.2);
+            border-radius:20px; padding:5px 14px;
+            font-size:.8rem; font-weight:700; color:var(--gold);
+        }
+        .score-pill span { font-size:.7rem; font-weight:400; color:var(--text3); }
+        .info-grid {
+            display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;
+        }
+        .info-item {
+            background:var(--bg3); border:1px solid var(--border);
+            border-radius:12px; padding:12px 16px;
+        }
+        .info-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); font-weight:700; }
+        .info-value { font-size:1rem; font-weight:700; color:var(--amber); margin-top:5px; word-break:break-word; }
+        .info-item.highlight { border-color:rgba(245,200,66,.25); }
+        .info-item.highlight .info-value { color:var(--gold); }
+
+        /* ── Admin button ── */
+        .admin-btn {
+            background:var(--bg3); border:1px solid var(--border);
+            padding:8px 18px; border-radius:30px; color:var(--text2);
+            font-size:.78rem; font-weight:600; cursor:pointer;
+            font-family:inherit; transition:.2s; white-space:nowrap;
+        }
+        .admin-btn:hover { border-color:var(--amber); color:var(--gold); }
+
+        /* ── Modal ── */
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:1000; justify-content:center; align-items:center; }
+        .modal-content {
+            background:var(--bg2); border:1px solid var(--border);
+            border-radius:20px; padding:28px; width:90%; max-width:400px;
+        }
+        .modal-content h3 { font-size:1rem; font-weight:700; color:var(--gold); margin-bottom:16px; }
+        .modal-content input[type=password] {
+            width:100%; background:var(--bg3); border:1px solid var(--border);
+            padding:10px 16px; border-radius:30px; color:var(--text);
+            font-family:inherit; font-size:.9rem; margin:12px 0;
+        }
+        .modal-content input[type=password]:focus { outline:none; border-color:var(--amber); }
+        .upload-area-sm {
+            border:1px dashed var(--border); border-radius:12px;
+            padding:16px; text-align:center; margin-top:12px; cursor:pointer;
+            color:var(--text3); font-size:.85rem; transition:border-color .2s;
+        }
+        .upload-area-sm:hover { border-color:var(--amber); color:var(--text2); }
+        .upload-area-sm input[type=file] { display:none; }
+        .flex-btns { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+        .btn {
+            background:var(--bg3); border:1px solid var(--border);
+            padding:8px 20px; border-radius:30px; color:var(--text2);
+            font-family:inherit; font-size:.82rem; cursor:pointer; transition:.2s;
+        }
+        .btn:hover { border-color:var(--amber); color:var(--gold); }
+
+        /* ── Empty / footer ── */
+        .empty-msg { text-align:center; padding:40px; color:var(--text3); font-size:.9rem; }
+        footer { text-align:center; font-size:.7rem; color:var(--text3); margin-top:16px; }
+
+        @media (max-width:640px) { body { padding:16px; } .inst-name { font-size:1rem; } }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-logo">
+        <div class="dot">PBF</div>
+        Crédito Privado — Ativos Aprovados
+    </div>
+    <div class="header-right">
+        <div class="hdate" id="hDate"></div>
+        <button class="theme-btn" id="themeBtn">🌙</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Rating — Crédito Privado</div>
+            </div>
+            <button class="admin-btn" id="adminBtn">🔧 Atualizar base</button>
+        </div>
+        <div class="page-subtitle">
+            Consulte ativos de crédito privado aprovados — dados fixos na última versão publicada
+            <span id="dataAtualizacao"></span>
+        </div>
+
+        <div id="statsBar" class="stats-bar"></div>
+
+        <div class="search-wrap">
+            <label>🔍 Digite o nome da empresa ou ticker (mínimo 2 letras)
+                <span id="filterLabel" style="margin-left:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;"></span>
+            </label>
+            <div class="search-inner">
+                <form onsubmit="return false;" autocomplete="off">
+                    <input type="hidden" name="dummy" value="prevent-pwd-manager">
+                    <input type="text" id="searchInput" autocomplete="off" autocorrect="off"
+                           autocapitalize="off" spellcheck="false"
+                           placeholder="Ex: GRENDENE, PETROBRAS, WEG, VALE...">
+                    <button class="clear-btn" id="clearSearchBtn" type="button" title="Limpar">✖</button>
+                </form>
+                <div id="autocompleteList" class="autocomplete-items" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultArea" style="display:none;">
+        <div class="card" id="resultCard"></div>
+    </div>
+
+    <footer>💡 Dados embutidos nesta versão. Atualização apenas pelo administrador.</footer>
+</div>
+
+<!-- Admin modal -->
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <h3>🔐 Atualização de dados</h3>
+        <form onsubmit="return false;" autocomplete="off">
+            <input type="password" id="adminPassword" placeholder="Senha de administrador" autocomplete="new-password">
+            <div id="uploadAreaModal" class="upload-area-sm" style="display:none;">
+                <div>📂 Clique ou arraste o novo arquivo Excel</div>
+                <input type="file" id="adminFileInput" accept=".xlsx,.xls" autocomplete="off">
+            </div>
+        </form>
+        <div class="flex-btns">
+            <button class="btn" id="cancelModalBtn" type="button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ADMIN_SENHA = "admin123";
+    let instituicoes = [
+    {
+        "Companhia": "Grendene Sa",
+        "Ticker": "GRND3",
+        "Score": 918,
+        "Rating": "AAA",
+        "Peso": 0.05
+    },
+    {
+        "Companhia": "Weg Sa",
+        "Ticker": "WEGE3",
+        "Score": 899,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Ez Tec Empreend. E Participações S/A",
+        "Ticker": "EZTC3",
+        "Score": 885,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Ambev S.A.",
+        "Ticker": "ABEV3",
+        "Score": 869,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "B3 S.A. - Brasil, Bolsa, Balcão",
+        "Ticker": "B3SA3",
+        "Score": 863,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Cia Saneamento Básico Estado São Paulo",
+        "Ticker": "SBSP3",
+        "Score": 854,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Totvs S.A",
+        "Ticker": "TOTS3",
+        "Score": 854,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Bemobi Mobile Tech S.A.",
+        "Ticker": "BMOB3",
+        "Score": 850,
+        "Rating": "AA+",
+        "Peso": 0.042
+    },
+    {
+        "Companhia": "Emae - Empresa Metrop.Aguas Energia S.A.",
+        "Ticker": "EMAE4",
+        "Score": 829,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Cambuci Sa",
+        "Ticker": "CAMB3",
+        "Score": 829,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Marcopolo Sa",
+        "Ticker": "POMO4",
+        "Score": 824,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Alupar Investimento S/A",
+        "Ticker": "ALUP11",
+        "Score": 823,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Porto Seguro Sa",
+        "Ticker": "PSSA3",
+        "Score": 822,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Wiz Co Participações E Corretagem De Seguros S.A.",
+        "Ticker": "WIZC3",
+        "Score": 822,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Vivara Participações S.A.",
+        "Ticker": "VIVA3",
+        "Score": 821,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Metalurgica Riosulense Sa",
+        "Ticker": "RSUL4",
+        "Score": 816,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Lps Brasil Consultoria De Imoveis S/A",
+        "Ticker": "LPSB3",
+        "Score": 814,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Tegma Gestão Logística Sa",
+        "Ticker": "TGMA3",
+        "Score": 812,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Caixa Seguridade Participações S.A.",
+        "Ticker": "CXSE3",
+        "Score": 809,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Metisa Metalúrgica Timboense Sa",
+        "Ticker": "MTSA4",
+        "Score": 805,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Itausa S.A.",
+        "Ticker": "ITSA4",
+        "Score": 802,
+        "Rating": "AA",
+        "Peso": 0.034
+    },
+    {
+        "Companhia": "Multiplan - Empreend Imobiliarios S.A.",
+        "Ticker": "MULT3",
+        "Score": 796,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Csu Digital S.A.",
+        "Ticker": "CSUD3",
+        "Score": 796,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Allos S.A.",
+        "Ticker": "ALOS3",
+        "Score": 793,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Intelbras S.A. Ind. De Telecomunicação Eletrônica Brasileira",
+        "Ticker": "INTB3",
+        "Score": 793,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Transmissora Aliança De Energia Elétrica S.A.",
+        "Ticker": "TAEE11",
+        "Score": 789,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Mahle Metal Leve S.A.",
+        "Ticker": "LEVE3",
+        "Score": 788,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Mills Locação, Serviços E Logística S.A.",
+        "Ticker": "MILS3",
+        "Score": 786,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Blau Farmacêutica S.A.",
+        "Ticker": "BLAU3",
+        "Score": 785,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Telefônica Brasil S.A.",
+        "Ticker": "VIVT3",
+        "Score": 782,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Unifique Telecomunicações S.A.",
+        "Ticker": "FIQE3",
+        "Score": 781,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Cpfl Energia Sa",
+        "Ticker": "CPFE3",
+        "Score": 779,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Cia Ferro Ligas Bahia Ferbasa",
+        "Ticker": "FESA4",
+        "Score": 778,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Lojas Renner Sa",
+        "Ticker": "LREN3",
+        "Score": 776,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Três Tentos Agroindustrial S.A.",
+        "Ticker": "TTEN3",
+        "Score": 774,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Petróleo Brasileiro S.A. - Petrobras",
+        "Ticker": "PETR4",
+        "Score": 773,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Suzano S.A.",
+        "Ticker": "SUZB3",
+        "Score": 771,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Petrorecôncavo S.A.",
+        "Ticker": "RECV3",
+        "Score": 771,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Cia Energ Minas Gerais - Cemig",
+        "Ticker": "CMIG4",
+        "Score": 771,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Cury Construtora E Incorporadora S.A.",
+        "Ticker": "CURY3",
+        "Score": 771,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Companhia Paranaense De Energia Copel",
+        "Ticker": "CPLE3",
+        "Score": 770,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Orizon Valorização De Resíduos S.A.",
+        "Ticker": "ORVR3",
+        "Score": 767,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Alpargatas Sa",
+        "Ticker": "ALPA4",
+        "Score": 764,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Track & Field Co S.A",
+        "Ticker": "TFCO4",
+        "Score": 760,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Hypera S/A",
+        "Ticker": "HYPE3",
+        "Score": 759,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Kepler Weber Sa",
+        "Ticker": "KEPL3",
+        "Score": 757,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Engie Brasil Energia S.A.",
+        "Ticker": "EGIE3",
+        "Score": 757,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Ourofino S.A.",
+        "Ticker": "OFSA3",
+        "Score": 756,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Schulz Sa",
+        "Ticker": "SHUL4",
+        "Score": 756,
+        "Rating": "AA-",
+        "Peso": 0.026
+    },
+    {
+        "Companhia": "Rede D'Or São Luiz S.A.",
+        "Ticker": "RDOR3",
+        "Score": 744,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Axia Energia S.A.",
+        "Ticker": "AXIA3",
+        "Score": 743,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Ultrapar Participações Sa",
+        "Ticker": "UGPA3",
+        "Score": 742,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Gps Participações E Empreendimentos S/A",
+        "Ticker": "GGPS3",
+        "Score": 741,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Vale S.A.",
+        "Ticker": "VALE3",
+        "Score": 741,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Vulcabras S.A.",
+        "Ticker": "VULC3",
+        "Score": 740,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Energisa Sa",
+        "Ticker": "ENGI11",
+        "Score": 737,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Valid Soluções S.A.",
+        "Ticker": "VLID3",
+        "Score": 735,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Isa Energia Brasil S.A.",
+        "Ticker": "ISAE4",
+        "Score": 733,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Meliuz S.A.",
+        "Ticker": "CASH3",
+        "Score": 730,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Klabin S.A.",
+        "Ticker": "KLBN11",
+        "Score": 730,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Grupo Mateus S.A.",
+        "Ticker": "GMAT3",
+        "Score": 730,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Irani Papel E Embalagem S.A.",
+        "Ticker": "RANI3",
+        "Score": 729,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Equatorial S.A.",
+        "Ticker": "EQTL3",
+        "Score": 729,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Rede Energia Participações S.A.",
+        "Ticker": "REDE3",
+        "Score": 727,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Embraer S.A.",
+        "Ticker": "EMBJ3",
+        "Score": 726,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Vittia S.A.",
+        "Ticker": "VITT3",
+        "Score": 725,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Fleury Sa",
+        "Ticker": "FLRY3",
+        "Score": 724,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Trevisa Investimentos Sa",
+        "Ticker": "LUXM4",
+        "Score": 721,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Gerdau S.A.",
+        "Ticker": "GGBR4",
+        "Score": 719,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Neogrid Participacões S.A.",
+        "Ticker": "NGRD3",
+        "Score": 717,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Grazziotin Sa",
+        "Ticker": "CGRA4",
+        "Score": 717,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Csn Mineração S.A.",
+        "Ticker": "CMIN3",
+        "Score": 711,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Technos Sa",
+        "Ticker": "TECN3",
+        "Score": 710,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Centrais Eletricas De Santa Catarina S.A",
+        "Ticker": "CLSC4",
+        "Score": 710,
+        "Rating": "A+",
+        "Peso": 0.018
+    },
+    {
+        "Companhia": "Motiva Infraestrutura De Mobilidade S.A.",
+        "Ticker": "MOTV3",
+        "Score": 698,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Jbs Sa",
+        "Ticker": "JBSS32",
+        "Score": 697,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Direcional Engenharia Sa",
+        "Ticker": "DIRR3",
+        "Score": 696,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Eucatex S.A. Industria E Comercio",
+        "Ticker": "EUCA4",
+        "Score": 696,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Vitru Educação S.A.",
+        "Ticker": "VTRU3",
+        "Score": 696,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Lavvi Empreendimentos Imobiliários S.A",
+        "Ticker": "LAVV3",
+        "Score": 696,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Metalurgica Gerdau Sa",
+        "Ticker": "GOAU4",
+        "Score": 694,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Jhsf Participações Sa",
+        "Ticker": "JHSF3",
+        "Score": 691,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Raia Drogasil S.A.",
+        "Ticker": "RADL3",
+        "Score": 691,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Oceanpact Serviços Marítimos S.A.",
+        "Ticker": "OPCT3",
+        "Score": 691,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Slc Agricola Sa",
+        "Ticker": "SLCE3",
+        "Score": 689,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Whirlpool S.A",
+        "Ticker": "WHRL4",
+        "Score": 687,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Cia De Participações Aliança Da Bahia",
+        "Ticker": "PEAB4",
+        "Score": 680,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Smartfit Escola De Ginástica E Dança S.A.",
+        "Ticker": "SMFT3",
+        "Score": 678,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Bradsaúde S.A.",
+        "Ticker": "SAUD3",
+        "Score": 678,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Electro Aço Altona S/A",
+        "Ticker": "EALT4",
+        "Score": 674,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Unipar Carbocloro S.A.",
+        "Ticker": "UNIP3",
+        "Score": 672,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Minupar Participacoes Sa",
+        "Ticker": "MNPR3",
+        "Score": 669,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Log-In Logistica Intermodal Sa",
+        "Ticker": "LOGN3",
+        "Score": 665,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Dexco S.A.",
+        "Ticker": "DXCO3",
+        "Score": 663,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Enjoei S.A.",
+        "Ticker": "ENJU3",
+        "Score": 663,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Frasle Mobility S.A.",
+        "Ticker": "FRAS3",
+        "Score": 658,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Ctc - Centro De Tecnologia Canavieira S.A.",
+        "Ticker": "CTCA3",
+        "Score": 658,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Rumo S.A.",
+        "Ticker": "RAIL3",
+        "Score": 653,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Sondotecnica Engenharia Solos S.A.",
+        "Ticker": "SOND3",
+        "Score": 650,
+        "Rating": "A",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Trisul S/A",
+        "Ticker": "TRIS3",
+        "Score": 649,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Eneva S.A.",
+        "Ticker": "ENEV3",
+        "Score": 647,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Dimed Sa Distribuidora De Medicamentos",
+        "Ticker": "PNVL3",
+        "Score": 645,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Padtec Holding S.A.",
+        "Ticker": "PDTC3",
+        "Score": 640,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Romi S.A.",
+        "Ticker": "ROMI3",
+        "Score": 639,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Terra Santa Propriedades Agrícolas S.A.",
+        "Ticker": "LAND3",
+        "Score": 638,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Vibra Energia S/A",
+        "Ticker": "VBBR3",
+        "Score": 628,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Prio S.A.",
+        "Ticker": "PRIO3",
+        "Score": 627,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Lwsa S/A",
+        "Ticker": "LWSA3",
+        "Score": 625,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Bb Seguridade Participações S.A.",
+        "Ticker": "BBSE3",
+        "Score": 624,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Cogna Educação S.A.",
+        "Ticker": "COGN3",
+        "Score": 619,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Irb - Brasil Resseguros S.A.",
+        "Ticker": "IRBR3",
+        "Score": 619,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Baumer Sa",
+        "Ticker": "BALM4",
+        "Score": 614,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Brava Energia S.A.",
+        "Ticker": "BRAV3",
+        "Score": 613,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "São Martinho Sa",
+        "Ticker": "SMTO3",
+        "Score": 604,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Dexxos Participações S.A.",
+        "Ticker": "DEXP4",
+        "Score": 604,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Even Construtora E Incorporadora S/A",
+        "Ticker": "EVEN3",
+        "Score": 603,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Companhia Celg De Participações - Celgpar",
+        "Ticker": "GPAR3",
+        "Score": 601,
+        "Rating": "A-",
+        "Peso": 0.01
+    },
+    {
+        "Companhia": "Plano & Plano Desenvolvimento Imobiliário S.A.",
+        "Ticker": "PLPL3",
+        "Score": 599,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Empreendimentos Pague Menos Sa",
+        "Ticker": "PGMN3",
+        "Score": 599,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Hospital Mater Dei S.A.",
+        "Ticker": "MATD3",
+        "Score": 599,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Azzas 2154 S.A.",
+        "Ticker": "AZZA3",
+        "Score": 596,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Construtora Tenda S/A",
+        "Ticker": "TEND3",
+        "Score": 593,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Companhia Brasileira De Aluminio",
+        "Ticker": "CBAV3",
+        "Score": 591,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Brisanet Serviços De Telecomunicações S.A.",
+        "Ticker": "BRST3",
+        "Score": 589,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Priner Serviços Industriais S.A.",
+        "Ticker": "PRNR3",
+        "Score": 588,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Grupo Sbf S.A.",
+        "Ticker": "SBFG3",
+        "Score": 586,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Brq Soluções Em Informática S.A.",
+        "Ticker": "BRQB3",
+        "Score": 582,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Auren Energia S.A",
+        "Ticker": "AURE3",
+        "Score": 581,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Veste Sa Estilo",
+        "Ticker": "VSTE3",
+        "Score": 571,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Camil Alimentos S/A",
+        "Ticker": "CAML3",
+        "Score": 567,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Boa Safra Sementes S.A",
+        "Ticker": "SOJA3",
+        "Score": 566,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cruzeiro Do Sul Educacional S.A.",
+        "Ticker": "CSED3",
+        "Score": 565,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "C&A Modas S.A.",
+        "Ticker": "CEAB3",
+        "Score": 561,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Usinas Sid De Minas Gerais S.A.-Usiminas",
+        "Ticker": "USIM3",
+        "Score": 554,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Iguatemi S.A.",
+        "Ticker": "IGTI11",
+        "Score": 551,
+        "Rating": "BBB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Wlm Part. E Comércio De Máquinas E Veículos S.A.",
+        "Ticker": "WLMM4",
+        "Score": 540,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Conservas Oderich Sa",
+        "Ticker": "ODER4",
+        "Score": 539,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Hapvida Participações E Investimentos S.A.",
+        "Ticker": "HAPV3",
+        "Score": 538,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Eternit S.A.",
+        "Ticker": "ETER3",
+        "Score": 537,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Pettenati S.A. Industria Textil",
+        "Ticker": "PTNT4",
+        "Score": 535,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Metalfrio Solutions S/A",
+        "Ticker": "FRIO3",
+        "Score": 533,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Hidrovias Do Brasil S.A.",
+        "Ticker": "HBSA3",
+        "Score": 531,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Ser Educacional S.A.",
+        "Ticker": "SEER3",
+        "Score": 531,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Desktop S.A",
+        "Ticker": "DESK3",
+        "Score": 529,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Aliperti S.A.",
+        "Ticker": "APTI4",
+        "Score": 528,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Ecorodovias Infraestrutura E Logística S.A.",
+        "Ticker": "ECOR3",
+        "Score": 527,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Panatlantica Sa",
+        "Ticker": "PATI4",
+        "Score": 526,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Allied Tecnologia S.A.",
+        "Ticker": "ALLD3",
+        "Score": 522,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Yduqs Participacoes S.A.",
+        "Ticker": "YDUQ3",
+        "Score": 521,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Guararapes Confecções Sa",
+        "Ticker": "RIAA3",
+        "Score": 520,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Quality Software S.A.",
+        "Ticker": "QUSW3",
+        "Score": 519,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Moura Dubeux Engenharia S/A",
+        "Ticker": "MDNE3",
+        "Score": 519,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Pacaembu Construtora S.A.",
+        "Ticker": "PCBU3",
+        "Score": 513,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Brasilagro Cia Bras De Prop Agricolas",
+        "Ticker": "AGRO3",
+        "Score": 512,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Allpark Empreendimentos, Participações E Serviços S.A.",
+        "Ticker": "ALPK3",
+        "Score": 506,
+        "Rating": "BBB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Companhia Industrial Cataguases",
+        "Ticker": "CATA4",
+        "Score": 500,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Melnick Desenvolvimento Imobiliário S.A.",
+        "Ticker": "MELK3",
+        "Score": 498,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Iochpe Maxion Sa",
+        "Ticker": "MYPK3",
+        "Score": 495,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Embpar Participações S/A",
+        "Ticker": "EPAR3",
+        "Score": 493,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Suzano Holding S.A.",
+        "Ticker": "NEMO3",
+        "Score": 493,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "D1000 Varejo Farma Participações S.A.",
+        "Ticker": "DMVF3",
+        "Score": 492,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mitre Realty Empreendimentos E Participações S.A.",
+        "Ticker": "MTRE3",
+        "Score": 491,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cia Siderurgica Nacional",
+        "Ticker": "CSNA3",
+        "Score": 490,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cyrela Brazil Realty S.A.Empreend E Part",
+        "Ticker": "CYRE4",
+        "Score": 489,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Anima Holding S/A",
+        "Ticker": "ANIM3",
+        "Score": 488,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Taurus Armas S.A.",
+        "Ticker": "TASA4",
+        "Score": 485,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Qualicorp Consultoria E Corretora De Seguros S.A.",
+        "Ticker": "QUAL3",
+        "Score": 485,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Simpar S.A.",
+        "Ticker": "SIMH3",
+        "Score": 482,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Magazine Luiza Sa",
+        "Ticker": "MGLU3",
+        "Score": 481,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Syn Prop & Tech S.A.",
+        "Ticker": "SYNE3",
+        "Score": 481,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Vamos Locação De Caminhões, Máquinas E Equipamentos S.A.",
+        "Ticker": "VAMO3",
+        "Score": 477,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Profarma Distrib Prod Farmaceuticos S.A.",
+        "Ticker": "PFRM3",
+        "Score": 476,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Prática Produtos S.A.",
+        "Ticker": "PTCA3",
+        "Score": 471,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Auren Operações S.A.",
+        "Ticker": "AESO3",
+        "Score": 469,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Marfrig Global Foods Sa",
+        "Ticker": "MBRF3",
+        "Score": 468,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Movida Participações S.A.",
+        "Ticker": "MOVI3",
+        "Score": 468,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Haga S.A. Indústria E Comércio",
+        "Ticker": "HAGA4",
+        "Score": 466,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Localiza Rent A Car Sa",
+        "Ticker": "RENT4",
+        "Score": 463,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mpm Corpóreos S.A.",
+        "Ticker": "ESPA3",
+        "Score": 462,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Construtora Adolpho Lindenberg S.A.",
+        "Ticker": "CALI3",
+        "Score": 455,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Granja Faria S.A.",
+        "Ticker": "EGGY3",
+        "Score": 455,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Compass Gás E Energia S.A.",
+        "Ticker": "PASS3",
+        "Score": 454,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Helbor Empreendimentos S/A",
+        "Ticker": "HBOR3",
+        "Score": 451,
+        "Rating": "BBB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Tupy Sa",
+        "Ticker": "TUPY3",
+        "Score": 447,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Jalles Machado S.A.",
+        "Ticker": "JALL3",
+        "Score": 446,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Armac Locação, Logística E Serviços S.A.",
+        "Ticker": "ARML3",
+        "Score": 446,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Positivo Tecnologia S.A.",
+        "Ticker": "POSI3",
+        "Score": 445,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Sao Carlos Empreend E Participacoes S.A.",
+        "Ticker": "SCAR3",
+        "Score": 442,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Karsten Sa",
+        "Ticker": "CTKA4",
+        "Score": 441,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mangels Industrial S.A.",
+        "Ticker": "MGEL4",
+        "Score": 441,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Biomm Sa",
+        "Ticker": "BIOM3",
+        "Score": 437,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Companhia De Fiacao E Tecidos Cedro E Cachoeira",
+        "Ticker": "CEDO4",
+        "Score": 435,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Companhia Melhoramentos De São Paulo",
+        "Ticker": "MSPA4",
+        "Score": 435,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cbo Holding S.A.",
+        "Ticker": "CBOH3",
+        "Score": 434,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Alliança Saúde E Participações S.A.",
+        "Ticker": "AALR3",
+        "Score": 429,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Rodobens S.A.",
+        "Ticker": "RBNS11",
+        "Score": 428,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Tc S.A.",
+        "Ticker": "TRAD3",
+        "Score": 425,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Hbr Realty Empreendimentos Imobiliários S.A.",
+        "Ticker": "HBRE3",
+        "Score": 424,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cvc Brasil Operadora E Agência De Viagens Sa",
+        "Ticker": "CVCB3",
+        "Score": 422,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Fica Empreendimentos Imobiliarios S.A.",
+        "Ticker": "FIEI3",
+        "Score": 421,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Investimentos E Particip Em Infra Sa Invepar",
+        "Ticker": "IVPR3B",
+        "Score": 420,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Azevedo & Travassos Energia S.A.",
+        "Ticker": "AZTE3",
+        "Score": 420,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Grupo Fartura De Hortifrut S.A.",
+        "Ticker": "OBAH3",
+        "Score": 420,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Randoncorp S.A.",
+        "Ticker": "RAPT4",
+        "Score": 418,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Josapar-Joaquim Oliveira S.A. - Particip",
+        "Ticker": "JOPA4",
+        "Score": 417,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Eurofarma Laboratórios S.A.",
+        "Ticker": "EUFA3",
+        "Score": 414,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Jsl S.A.",
+        "Ticker": "JSLG3",
+        "Score": 414,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Nutriplant Industria E Comércio S/A",
+        "Ticker": "NUTR3",
+        "Score": 413,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cosan S.A.",
+        "Ticker": "CSAN3",
+        "Score": 413,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Atom Educação E Editora S.A.",
+        "Ticker": "ATED3",
+        "Score": 412,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "T4F Entretenimento Sa",
+        "Ticker": "SHOW3",
+        "Score": 410,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Bluefit Academias De Ginástica E Participações S.A",
+        "Ticker": "BFFT3",
+        "Score": 410,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Natura Cosmeticos Sa",
+        "Ticker": "NATU3",
+        "Score": 408,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Produtores Energet.De Manso S.A.- Proman",
+        "Ticker": "PRMN3B",
+        "Score": 408,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mrs Logística S/A",
+        "Ticker": "MRSA3B",
+        "Score": 402,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mrv Engenharia E Participações S/A",
+        "Ticker": "MRVE3",
+        "Score": 402,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Diagnosticos Da America Sa",
+        "Ticker": "DASA3",
+        "Score": 401,
+        "Rating": "BB+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Minerva S/A",
+        "Ticker": "BEEF3",
+        "Score": 394,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mlog S.A.",
+        "Ticker": "MNBI3",
+        "Score": 392,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cm Hospitalar S.A",
+        "Ticker": "VVEO3",
+        "Score": 389,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Unicasa Indústria De Móveis S.A.",
+        "Ticker": "UCAS3",
+        "Score": 388,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Mundial S.A - Produtos De Consumo",
+        "Ticker": "MNDL3",
+        "Score": 384,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "União Pet Participações S.A.",
+        "Ticker": "AUAU3",
+        "Score": 383,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Lojas Quero Quero S.A.",
+        "Ticker": "LJQQ3",
+        "Score": 378,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Inc Empreendimentos Imobiliários S.A.",
+        "Ticker": "INNC3",
+        "Score": 376,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Braskem S.A.",
+        "Ticker": "BRKM3",
+        "Score": 376,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Hmobi Participações S.A",
+        "Ticker": "HMOB3",
+        "Score": 372,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Fictor Alimentos S.A.",
+        "Ticker": "FICT3",
+        "Score": 372,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Grupo Casas Bahia S.A.",
+        "Ticker": "BHIA3",
+        "Score": 357,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Companhia Brasileira De Distribuição",
+        "Ticker": "PCAR3",
+        "Score": 354,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "W2W E-Commerce De Vinhos S.A.",
+        "Ticker": "WNBR3",
+        "Score": 353,
+        "Rating": "BB",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Marisa Lojas Sa",
+        "Ticker": "AMAR3",
+        "Score": 346,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Renova Energia S.A.",
+        "Ticker": "RNEW4",
+        "Score": 330,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Comerc Energia S.A.",
+        "Ticker": "COMR3",
+        "Score": 327,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Recrusul Sa",
+        "Ticker": "RCSL4",
+        "Score": 321,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Bioma Educação S.A.",
+        "Ticker": "BIED3",
+        "Score": 314,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Dotz S.A.",
+        "Ticker": "DOTZ3",
+        "Score": 313,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Tecnisa S/A",
+        "Ticker": "TCSA3",
+        "Score": 312,
+        "Rating": "BB-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "International Meal Company Alimentação S.A.",
+        "Ticker": "MEAL3",
+        "Score": 299,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Automob Participações S.A.",
+        "Ticker": "AMOB3",
+        "Score": 292,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Livetech Da Bahia Indústria E Comércio S.A.",
+        "Ticker": "WDCN3",
+        "Score": 292,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Manufatura De Brinquedos Estrela Sa",
+        "Ticker": "ESTR4",
+        "Score": 290,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Pbg S/A",
+        "Ticker": "PTBL3",
+        "Score": 289,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Igua Saneamento S.A.",
+        "Ticker": "IGSN3",
+        "Score": 286,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Grupo Salta Educação S.A.",
+        "Ticker": "SALT3",
+        "Score": 270,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Arandu Investimentos S.A.",
+        "Ticker": "ARND3",
+        "Score": 264,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Cvlb Brasil S.A.",
+        "Ticker": "LLBI3",
+        "Score": 264,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Azul S.A.",
+        "Ticker": "AZUL3",
+        "Score": 255,
+        "Rating": "B+",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Alphaville S.A.",
+        "Ticker": "AVLL3",
+        "Score": 249,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Oncoclínicas Do Brasil Serviços Médicos S.A.",
+        "Ticker": "ONCO3",
+        "Score": 248,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Belora Rdvc City Desenvolvimento Imobiliário S.A.",
+        "Ticker": "CCTY3",
+        "Score": 242,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Pdg Realty S.A. Empreend E Participacoes",
+        "Ticker": "PDGR3",
+        "Score": 238,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Gafisa Sa",
+        "Ticker": "GFSA3",
+        "Score": 227,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Raízen S.A.",
+        "Ticker": "RAIZ4",
+        "Score": 219,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Plascar Participações Industriais S.A",
+        "Ticker": "PLAS3",
+        "Score": 204,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Sul 116 Participações S.A.",
+        "Ticker": "OPTS3",
+        "Score": 203,
+        "Rating": "B",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Bbm Logística S.A.",
+        "Ticker": "BBML3",
+        "Score": 200,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Lupatech S.A.",
+        "Ticker": "LUPA3",
+        "Score": 192,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Sansuy Sa Indústria De Plasticos",
+        "Ticker": "SNSY3",
+        "Score": 188,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Kallas Incorporações E Construções S.A.",
+        "Ticker": "KLAS3",
+        "Score": 186,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Têxtil Renauxview S/A",
+        "Ticker": "TXRX11",
+        "Score": 184,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Revee S.A.",
+        "Ticker": "RVEE3",
+        "Score": 176,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Sequoia Logística E Transportes S.A.",
+        "Ticker": "SEQL3",
+        "Score": 173,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "B100 S.A.",
+        "Ticker": "B1003",
+        "Score": 172,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Tpi - Triunfo Participacoes E Investimentos S.A.",
+        "Ticker": "TPIS3",
+        "Score": 170,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Wetzel S.A.",
+        "Ticker": "MWET4",
+        "Score": 151,
+        "Rating": "B-",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Viver Incorporadora E Construtora S.A",
+        "Ticker": "VIVR3",
+        "Score": 143,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Infracommerce Cxaas S.A.",
+        "Ticker": "IFCM3",
+        "Score": 133,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Inepar S.A. Industria E Construcoes Em Recuperacao Judicial",
+        "Ticker": "INEP4",
+        "Score": 124,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Grupo Toky S.A.",
+        "Ticker": "TOKY3",
+        "Score": 120,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Azevedo & Travassos Sa",
+        "Ticker": "AZEV4",
+        "Score": 114,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Oranjebtc S.A. - Educação E Investimento",
+        "Ticker": "OBTC11",
+        "Score": 104,
+        "Rating": "CCC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "You Inc Incorporadora E Participação S.A",
+        "Ticker": "YOUC3",
+        "Score": 96,
+        "Rating": "CC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Tim S.A.",
+        "Ticker": "TIMS3",
+        "Score": 86,
+        "Rating": "CC",
+        "Peso": 0
+    },
+    {
+        "Companhia": "Rio Paranapanema Energia Sa",
+        "Ticker": "GEPA4",
+        "Score": 60,
+        "Rating": "CC",
+        "Peso": 0
+    }
+    ];
+    let instMap = new Map();
+    let activeRatingFilter = 'all';
+    let searchInput, autocompleteDiv, clearBtn, currentFocus = -1;
+
+    function getRatingColorClass(rating) {
+        if (!rating) return 'rating-neutral';
+        const r = rating.toString().toUpperCase();
+        if (r.startsWith('A')) return 'rating-green';
+        if (r.startsWith('B') || r.startsWith('C') || r.startsWith('D') || r === 'CCC' || r === 'CC' || r === 'C' || r === 'D') return 'rating-red';
+        return 'rating-neutral';
+    }
+    function formatNumber(value) {
+        if (value === undefined || value === null || value === '') return '—';
+        let num = parseFloat(value);
+        if (isNaN(num)) return value.toString();
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function formatPercent(value) {
+        if (value === undefined || value === null || value === '') return '—';
+        let num = parseFloat(value);
+        if (isNaN(num)) return value.toString();
+        return (num * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    }
+    function normalizarTexto(str) { return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function renderDetalhes(inst) {
+        const resultCard = document.getElementById('resultCard');
+        if (!inst) {
+            resultCard.innerHTML = '<div class="empty-msg">Selecione um ativo para ver os detalhes.</div>';
+            document.getElementById('resultArea').style.display = 'block';
+            return;
+        }
+        const ratingClass = getRatingColorClass(inst['Rating']);
+        const ratingHtml  = inst['Rating']
+            ? `<span class="rating-badge ${ratingClass}">${escapeHtml(inst['Rating'])}</span>` : '';
+        const scoreVal = inst['Score'];
+        const scoreFmt = (scoreVal !== undefined && scoreVal !== null && scoreVal !== '')
+            ? Number(scoreVal).toLocaleString('pt-BR', {maximumFractionDigits:0}) : null;
+        const pesoVal  = inst['Peso'];
+        const pesoFmt  = (pesoVal !== undefined && pesoVal !== null && pesoVal !== '')
+            ? (parseFloat(pesoVal) * 100).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%' : null;
+        let gridHtml = '';
+        if (inst['Ticker']) {
+            gridHtml += `<div class="info-item"><div class="info-label">Ticker</div><div class="info-value">${escapeHtml(inst['Ticker'])}</div></div>`;
+        }
+        if (pesoFmt) {
+            gridHtml += `<div class="info-item highlight"><div class="info-label">Peso Sugerido</div><div class="info-value">${pesoFmt}</div></div>`;
+        }
+        const html = `
+        <div class="inst-card">
+            <div class="inst-header">
+                <div>
+                    <div class="inst-name">${escapeHtml(inst['Companhia'])}</div>
+                    <div style="margin-top:5px;">${ratingHtml}</div>
+                </div>
+                ${scoreFmt ? `<div class="score-pill">Score <span>&nbsp;</span>${scoreFmt}</div>` : ''}
+            </div>
+            <div class="info-grid">${gridHtml}</div>
+        </div>`;
+        resultCard.innerHTML = html;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+    function updateStats() {
+        const statsDiv = document.getElementById('statsBar');
+        if (instituicoes.length === 0) {
+            statsDiv.innerHTML = '<div class="stat-pill"><span class="dot dot-gold"></span>Nenhum ativo carregado</div>';
+            return;
+        }
+        const countA   = instituicoes.filter(i => i.Rating && i.Rating.toString().toUpperCase().startsWith('A')).length;
+        const countRed = instituicoes.filter(i => i.Rating && (
+            i.Rating.toString().toUpperCase().startsWith('B') ||
+            i.Rating.toString().toUpperCase().startsWith('C') ||
+            i.Rating.toString().toUpperCase().startsWith('D'))).length;
+        const clsAll = activeRatingFilter==='all'  ? 'active-all' : '';
+        const clsA   = activeRatingFilter==='a'    ? 'active-a'   : '';
+        const clsBCD = activeRatingFilter==='bcd'  ? 'active-bcd' : '';
+        statsDiv.innerHTML = `
+            <div class="stat-pill ${clsAll}" data-filter="all"><span class="dot dot-gold"></span>${instituicoes.length} ativos</div>
+            <div class="stat-pill ${clsA}"   data-filter="a"  ><span class="dot dot-green"></span>${countA} com rating A</div>
+            ${countRed > 0 ? `<div class="stat-pill ${clsBCD}" data-filter="bcd"><span class="dot dot-red"></span>${countRed} com rating B/C/D</div>` : ''}
+        `;
+        statsDiv.querySelectorAll('.stat-pill[data-filter]').forEach(pill => {
+            pill.addEventListener('click', () => {
+                activeRatingFilter = pill.dataset.filter;
+                const lbl = document.getElementById('filterLabel');
+                if (lbl) {
+                    if (activeRatingFilter === 'a')        { lbl.textContent = '· filtrando: rating A'; lbl.style.color = 'var(--green)'; }
+                    else if (activeRatingFilter === 'bcd') { lbl.textContent = '· filtrando: rating B/C/D'; lbl.style.color = 'var(--red)'; }
+                    else                                   { lbl.textContent = ''; }
+                }
+                updateStats();
+                const term = searchInput ? searchInput.value.trim() : '';
+                if (term.length >= 2) searchInput.dispatchEvent(new Event('input'));
+                else renderDetalhes(null);
+            });
+        });
+    }
+    function encontrarColunas(headers) {
+        const map = {
+            Companhia: ['companhia','empresa','emissor','nome','company','issuer'],
+            Ticker:    ['ticker','codigo','symbol','ativo','code'],
+            Score:     ['score','pontuacao','nota'],
+            Rating:    ['rating','classificacao'],
+            Peso:      ['peso','weight','participacao','alocacao'],
+        };
+        let indices = {};
+        for (let campo in map) indices[campo] = -1;
+        for (let i = 0; i < headers.length; i++) {
+            let h = normalizarTexto(headers[i]);
+            for (let [campo, chaves] of Object.entries(map)) {
+                if (indices[campo] === -1 && chaves.some(c => h.includes(c))) indices[campo] = i;
+            }
+        }
+        return indices;
+    }
+    async function processarExcelParaGerarHTML(file) {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data, { type: 'array' });
+        let sheetName = 'Planilha1';
+        if (!workbook.Sheets[sheetName]) sheetName = workbook.SheetNames[0];
+        const sheet  = workbook.Sheets[sheetName];
+        const rows   = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        if (!rows || rows.length < 2) throw new Error('Planilha vazia');
+        const headers  = rows[0].map(c => c ? c.toString().trim() : '');
+        const colIndex = encontrarColunas(headers);
+        if (colIndex.Companhia === -1) throw new Error('Coluna "Companhia" não identificada.');
+        const novasInst = [];
+        for (let i = 1; i < rows.length; i++) {
+            const row  = rows[i];
+            if (!row || row.length === 0) continue;
+            const nome = row[colIndex.Companhia]?.toString().trim();
+            if (!nome) continue;
+            let obj = { 'Companhia': nome };
+            if (colIndex.Ticker !== -1) obj['Ticker'] = row[colIndex.Ticker]?.toString().trim() || '';
+            if (colIndex.Score  !== -1) obj['Score']  = row[colIndex.Score]  !== '' ? parseFloat(row[colIndex.Score])  : '';
+            if (colIndex.Rating !== -1) obj['Rating'] = row[colIndex.Rating]?.toString().trim() || '';
+            if (colIndex.Peso   !== -1) obj['Peso']   = row[colIndex.Peso]   !== '' ? parseFloat(row[colIndex.Peso])   : '';
+            novasInst.push(obj);
+        }
+        if (novasInst.length === 0) throw new Error('Nenhum ativo válido encontrado');
+        const novoHTML = await gerarHTMLComDados(novasInst);
+        const blob = new Blob([novoHTML], { type: 'text/html' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'credito_privado_atualizado.html';
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('✅ Novo HTML gerado com ' + novasInst.length + ' ativos. Substitua o arquivo no servidor.');
+    }
+    function gerarHTMLComDados(dados) {
+        // Serializa os novos dados
+        const linhas = dados.map(inst => {
+            const campos = Object.entries(inst).map(([k, v]) => {
+                const val = (typeof v === 'string') ? JSON.stringify(v) : (isNaN(v) ? JSON.stringify(v) : v);
+                return '        ' + JSON.stringify(k) + ': ' + val;
+            });
+            return '    {\n' + campos.join(',\n') + '\n    }';
+        }).join(',\n');
+        const novoArray = 'let instituicoes = [\n' + linhas + '\n    ];';
+
+        // Usa fetch para pegar o fonte original da página (sem reformatação do browser)
+        return fetch(location.href)
+            .then(r => r.text())
+            .then(fonte => {
+                const INICIO = 'let instituicoes = [';
+                const FIM    = '];\n    let instMap';
+                const i1 = fonte.indexOf(INICIO);
+                const i2 = fonte.indexOf(FIM, i1);
+                if (i1 === -1 || i2 === -1) throw new Error('Marcadores de dados não encontrados no fonte.');
+                // Stampa data/hora da atualização no meta tag
+                const agora = new Date().toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                let resultado = fonte.slice(0, i1) + novoArray + '\n    let instMap' + fonte.slice(i2 + FIM.length);
+                resultado = resultado.replace(/<meta name="data-atualizacao" content="[^"]*">/, '<meta name="data-atualizacao" content="' + agora + '">');
+                return resultado;
+            });
+    }
+    function rebuildMap() { instMap.clear(); instituicoes.forEach(inst => instMap.set(inst['Companhia'], inst)); }
+    function setupAutocomplete() {
+        searchInput = document.getElementById('searchInput');
+        autocompleteDiv = document.getElementById('autocompleteList');
+        clearBtn = document.getElementById('clearSearchBtn');
+        
+        function toggleClearBtn() { clearBtn.style.display = searchInput.value.length > 0 ? 'flex' : 'none'; }
+        searchInput.addEventListener('input', toggleClearBtn);
+        clearBtn.addEventListener('click', () => { searchInput.value = ''; autocompleteDiv.style.display = 'none'; renderDetalhes(null); toggleClearBtn(); searchInput.focus(); currentFocus = -1; });
+        
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.trim();
+            if (term.length < 2) { autocompleteDiv.style.display = 'none'; renderDetalhes(null); currentFocus = -1; return; }
+            const termLower = term.toLowerCase();
+            const matches = instituicoes.filter(inst => {
+                if (!inst['Companhia'].toLowerCase().includes(termLower)) return false;
+                if (activeRatingFilter === 'a')   return inst.Rating && inst.Rating.toString().toUpperCase().startsWith('A');
+                if (activeRatingFilter === 'bcd') return inst.Rating && (inst.Rating.toString().toUpperCase().startsWith('B') || inst.Rating.toString().toUpperCase().startsWith('C') || inst.Rating.toString().toUpperCase().startsWith('D'));
+                return true;
+            });
+            if (matches.length === 0) { autocompleteDiv.style.display = 'none'; renderDetalhes(null); currentFocus = -1; return; }
+            autocompleteDiv.innerHTML = '';
+            matches.slice(0, 50).forEach((inst, idx) => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                div.setAttribute('data-index', idx);
+                const ratingClass = getRatingColorClass(inst['Rating']);
+                div.innerHTML = `<span>${escapeHtml(inst['Companhia'])}</span><span class="rating-badge ${ratingClass}">${escapeHtml(inst['Rating'] || 'NR')}</span>`;
+                div.addEventListener('click', () => {
+                    searchInput.value = inst['Companhia'];
+                    autocompleteDiv.style.display = 'none';
+                    renderDetalhes(inst);
+                    toggleClearBtn();
+                    currentFocus = -1;
+                });
+                autocompleteDiv.appendChild(div);
+            });
+            autocompleteDiv.style.display = 'block';
+            currentFocus = -1;
+        });
+        
+        searchInput.addEventListener('keydown', (e) => {
+            const items = autocompleteDiv.querySelectorAll('.autocomplete-item');
+            if (items.length === 0) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocus++;
+                if (currentFocus >= items.length) currentFocus = 0;
+                updateActiveItem(items, currentFocus);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocus--;
+                if (currentFocus < 0) currentFocus = items.length - 1;
+                updateActiveItem(items, currentFocus);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFocus >= 0 && currentFocus < items.length) items[currentFocus].click();
+                else if (autocompleteDiv.style.display === 'block' && items.length > 0) items[0].click();
+                else {
+                    const term = searchInput.value.trim();
+                    if (term.length > 0) {
+                        const exactMatch = instituicoes.find(inst => inst['Companhia'].toLowerCase() === term.toLowerCase());
+                        if (exactMatch) { renderDetalhes(exactMatch); searchInput.value = exactMatch['Instituição']; toggleClearBtn(); }
+                        else {
+                            const similar = instituicoes.find(inst => inst['Companhia'].toLowerCase().includes(term.toLowerCase()));
+                            if (similar) { renderDetalhes(similar); searchInput.value = similar['Instituição']; toggleClearBtn(); }
+                        }
+                    }
+                }
+                autocompleteDiv.style.display = 'none';
+                currentFocus = -1;
+            }
+        });
+        
+        function updateActiveItem(items, focusIndex) {
+            items.forEach((item, idx) => {
+                if (idx === focusIndex) { item.classList.add('active'); item.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+                else item.classList.remove('active');
+            });
+        }
+        
+        document.addEventListener('click', (e) => { if (e.target !== searchInput && !autocompleteDiv.contains(e.target)) { autocompleteDiv.style.display = 'none'; currentFocus = -1; } });
+        toggleClearBtn();
+    }
+
+        rebuildMap();
+    updateStats();
+    setupAutocomplete();
+
+    // ── Relógio ──
+    function updateClock() {
+        const el = document.getElementById('hDate');
+        if (!el) return;
+        const now = new Date();
+        el.textContent = now.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})
+            + ' · ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    }
+    updateClock(); setInterval(updateClock, 1000);
+
+    // ── Tema claro/escuro ──
+    let isDark = true;
+    document.getElementById('themeBtn').addEventListener('click', () => {
+        isDark = !isDark;
+        document.body.classList.toggle('light', !isDark);
+        document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+    });
+
+    // ── Data de atualização ──
+    (function() {
+        const meta = document.querySelector('meta[name="data-atualizacao"]');
+        const span = document.getElementById('dataAtualizacao');
+        if (meta && meta.content && span) span.textContent = '· Atualizado em ' + meta.content;
+    })();
+    const adminBtn = document.getElementById('adminBtn');
+    const modal = document.getElementById('adminModal');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const adminPass = document.getElementById('adminPassword');
+    const uploadAreaModal = document.getElementById('uploadAreaModal');
+    const adminFileInput = document.getElementById('adminFileInput');
+    adminBtn.addEventListener('click', () => { modal.style.display = 'flex'; adminPass.value = ''; uploadAreaModal.style.display = 'block'; adminFileInput.value = ''; });
+    cancelBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    adminPass.addEventListener('input', (e) => { if (e.target.value === ADMIN_SENHA) uploadAreaModal.style.display = 'block'; else uploadAreaModal.style.display = 'none'; });
+    uploadAreaModal.addEventListener('click', () => { if (adminPass.value === ADMIN_SENHA) adminFileInput.click(); });
+    adminFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (adminPass.value !== ADMIN_SENHA) { alert('Senha incorreta.'); adminFileInput.value = ''; return; }
+        try {
+            await processarExcelParaGerarHTML(file);
+            modal.style.display = 'none';
+        } catch (err) { alert('Erro: '+err.message); }
+    });
+
+
+</script>
+</body>
+</html>
