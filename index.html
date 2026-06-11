@@ -25,7 +25,7 @@
         }
         body.light {
             --bg:    #f4f5f7;
-            --bg2:   #ffffff;
+            --bg2:   #ffff;
             --bg3:   #eef0f4;
             --border:#d4d8e2;
             --text:  #1a1d2e;
@@ -38,7 +38,7 @@
             --blue:  #1565c0;
         }
 
-        /* ==================== TOPBAR PADRÃO HUB FINANCEIRO ==================== */
+        /* ==== TOPBAR PADRÃO HUB FINANCEIRO ==== */
         .hub-topbar {
             --bg-topbar: #141720;
             --border-topbar: #2a2e3f;
@@ -61,7 +61,7 @@
             z-index: 200;
         }
         body.light .hub-topbar {
-            --bg-topbar: #ffffff;
+            --bg-topbar: #ffff;
             --border-topbar: #d4d8e2;
             --text-topbar: #1a1d2e;
             --text2-topbar: #4a4f6a;
@@ -201,7 +201,7 @@
                 margin: 0 auto;
             }
         }
-        /* ==================== FIM TOPBAR ==================== */
+        /* ==== FIM TOPBAR ==== */
 
         /* Estilos da página (ajustados para ocupar 100% largura) */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -381,7 +381,7 @@
 </head>
 <body>
 
-<!-- ==================== TOPBAR PADRÃO HUB FINANCEIRO ==================== -->
+<!-- ==== TOPBAR PADRÃO HUB FINANCEIRO ==== -->
 <div class="hub-topbar">
     <div class="hub-topbar-left">
         <div class="hub-pbf-badge">PBF</div>
@@ -403,7 +403,7 @@
         <button class="hub-theme-btn" id="hubThemeBtn">🌙</button>
     </div>
 </div>
-<!-- ==================== FIM TOPBAR ==================== -->
+<!-- ==== FIM TOPBAR ==== -->
 
 <div class="container">
     <div class="card">
@@ -431,8 +431,8 @@
                 <form onsubmit="return false;" autocomplete="off">
                     <input type="hidden" name="dummy" value="prevent-pwd-manager">
                     <input type="text" id="searchInput" autocomplete="off" autocorrect="off"
-                           autocapitalize="off" spellcheck="false"
-                           placeholder="Ex: GRENDENE, PETROBRAS, WEG, VALE...">
+                    autocapitalize="off" spellcheck="false"
+                    placeholder="Ex: GRENDENE, PETROBRAS, WEG, VALE...">
                     <button class="clear-btn" id="clearSearchBtn" type="button" title="Limpar">✖</button>
                 </form>
                 <div id="autocompleteList" class="autocomplete-items" style="display:none;"></div>
@@ -2485,7 +2485,7 @@
                 if (lbl) {
                     if (activeRatingFilter === 'a')        { lbl.textContent = '· filtrando: rating A'; lbl.style.color = 'var(--green)'; }
                     else if (activeRatingFilter === 'bcd') { lbl.textContent = '· filtrando: rating B/C/D'; lbl.style.color = 'var(--red)'; }
-                    else                                   { lbl.textContent = ''; }
+                    else                    { lbl.textContent = ''; }
                 }
                 updateStats();
                 const term = searchInput ? searchInput.value.trim() : '';
@@ -2631,12 +2631,12 @@
                 else {
                     const term = searchInput.value.trim();
                     if (term.length > 0) {
-                        const exactMatch = instituicoes.find(inst => inst['Companhia'].toLowerCase() === term.toLowerCase());
-                        if (exactMatch) { renderDetalhes(exactMatch); searchInput.value = exactMatch['Instituição']; toggleClearBtn(); }
-                        else {
-                            const similar = instituicoes.find(inst => inst['Companhia'].toLowerCase().includes(term.toLowerCase()));
-                            if (similar) { renderDetalhes(similar); searchInput.value = similar['Instituição']; toggleClearBtn(); }
-                        }
+                    const exactMatch = instituicoes.find(inst => inst['Companhia'].toLowerCase() === term.toLowerCase());
+                    if (exactMatch) { renderDetalhes(exactMatch); searchInput.value = exactMatch['Instituição']; toggleClearBtn(); }
+                    else {
+                    const similar = instituicoes.find(inst => inst['Companhia'].toLowerCase().includes(term.toLowerCase()));
+                    if (similar) { renderDetalhes(similar); searchInput.value = similar['Instituição']; toggleClearBtn(); }
+                    }
                     }
                 }
                 autocompleteDiv.style.display = 'none';
@@ -2677,25 +2677,25 @@
                     const pesoFmt = inst['Peso'] ? (parseFloat(inst['Peso'])*100).toFixed(2)+'%' : '—';
                     const scoreFmt = inst['Score'] ? Number(inst['Score']).toLocaleString('pt-BR',{maximumFractionDigits:0}) : '—';
                     const campos = [
-                        { label:'Ticker',        val: inst['Ticker'] || '—' },
-                        { label:'Score',         val: scoreFmt },
-                        { label:'Peso Sugerido', val: pesoFmt },
+                    { label:'Ticker',        val: inst['Ticker'] || '—' },
+                    { label:'Score',         val: scoreFmt },
+                    { label:'Peso Sugerido', val: pesoFmt },
                     ];
                     const detailGrid = campos.map(cp =>
-                        `<div class="fundo-detail-item"><div class="fundo-detail-label">${cp.label}</div><div class="fundo-detail-value">${escapeHtml(cp.val)}</div></div>`
+                    `<div class="fundo-detail-item"><div class="fundo-detail-label">${cp.label}</div><div class="fundo-detail-value">${escapeHtml(cp.val)}</div></div>`
                     ).join('');
                     return `
                     <div class="fundo-item-wrap" data-nome="${escapeHtml(inst['Companhia'])}">
-                        <div class="fundo-item">
-                            <span class="fundo-item-name" title="${escapeHtml(inst['Companhia'])}">${escapeHtml(inst['Companhia'])}</span>
-                            <div class="fundo-item-meta">
-                                ${badge}
-                                <span class="fundo-item-arrow">▼</span>
-                            </div>
-                        </div>
-                        <div class="fundo-detail-panel">
-                            <div class="fundo-detail-grid">${detailGrid}</div>
-                        </div>
+                    <div class="fundo-item">
+                    <span class="fundo-item-name" title="${escapeHtml(inst['Companhia'])}">${escapeHtml(inst['Companhia'])}</span>
+                    <div class="fundo-item-meta">
+                    ${badge}
+                    <span class="fundo-item-arrow">▼</span>
+                    </div>
+                    </div>
+                    <div class="fundo-detail-panel">
+                    <div class="fundo-detail-grid">${detailGrid}</div>
+                    </div>
                     </div>`;
                 }).join('')}
             </div>
@@ -2788,6 +2788,15 @@
     document.getElementById('hubNewTabBtn')?.addEventListener('click', () => {
         window.open(window.location.href, '_blank');
     });
+
+    // ── Data de atualização ──
+    (function() {
+        const meta = document.querySelector('meta[name="data-atualizacao"]');
+        const span = document.getElementById('dataAtualizacao');
+        if (meta && meta.content && span) {
+            span.textContent = '· Atualizado em ' + meta.content;
+        }
+    })();
 
     // ── INICIALIZAÇÃO ──
     rebuildMap();
